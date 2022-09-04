@@ -9,11 +9,11 @@ class Student:
         self.grades = {}
     
     def rate_Lecturer(self, lecturer, course, grade):
-        if isinstance(lecturer, Lecturer) and course in Lecturer.courses_attached and course in self.courses_in_progress:
+        if isinstance(lecturer, Lecturer) and course in lecturer.courses_attached and course in self.courses_in_progress:
             if course in lecturer.grades:
-                Lecturer.grades[course] += [grade]
+                lecturer.grades[course].append(grade)
             else:
-                Lecturer.grades[course] = [grade]
+                lecturer.grades[course] = [grade]
         else:
             return 'Ошибка'
 
@@ -28,9 +28,17 @@ class Student:
     def __str__(self):
         result = f'Имя: {self.name}\nФамилия: {self.surname}\n'
         result += f'Средняя оценка за д/з: {self.average_grade()}\n'
-        result += f'Курсы в процессе изучения: {", ".join(self.courses_in_progress)}\n'
-        result += f'Завершенные курсы: {", ".join(self.finished_courses)}\n'
-        return 
+        if len(self.courses_in_progress) > 1:
+            result += f'Курсы в процессе изучения: {", ".join(self.courses_in_progress)}\n'
+        else:
+            result += f'Курсы в процессе изучения: {self.courses_in_progress[0]}\n'
+        if len(self.finished_courses) > 1:
+            result += f'Курсы в процессе изучения: {", ".join(self.finished_courses)}\n'
+        elif len(self.finished_courses) < 1:
+            result += f'Нет завершенных курсов\n'
+        else:
+            result += f'Курсы в процессе изучения: {self.finished_courses[0]}\n'
+        return result
 
     def __eq__(self, other):
         if not isinstance(other, Student):
@@ -88,15 +96,67 @@ class Reviewer(Mentor):
         return f'Имя: {self.name}\nФамилия: {self.surname}\n'
 
 def students_average_grade(students):
-    average_grade = sum(student.average_grade() for student in students) / len(students)
-    return average_grade
+    for student in students:
+        if len(student.grades.keys()) == 0:
+            return 0
+        else:
+            sum_grade = sum(sum(grade) for grade in student.grades.values())
+            grade_count = sum(len(grade) for grade in student.grades.values())
+            return sum_grade / grade_count
+
 
 def lecturers_average_grade(lecturers):
-    average_grade = sum(lecturer.average_grade() for lecturer in lecturers) / len(lecturers)
-    return average_grade
+    for lecturer in lecturers:
+        if len(lecturer.grades.keys()) == 0:
+            return 0
+        else:
+            sum_grade = sum(sum(grade) for grade in lecturer.grades.values())
+            grade_count = sum(len(grade) for grade in lecturer.grades.values())
+            return sum_grade / grade_count
 
-best_student = Student('Ruoy', 'Eman', 'your_gender')
-best_student.courses_in_progress += ['Python']
- 
-cool_mentor = Reviewer('Some', 'Buddy')
+def student_test():
+    course = 'Python'
+    student1 = Student('Gyro', 'Zeppeli', 'man')
+    student1.courses_in_progress.append(course)
+    print(student1.courses_in_progress)
+    student2 = Student('Johny', 'Joestar', 'man')
+    student2.courses_in_progress.append(course)
+
+    reviewer = Reviewer('Гриш', 'Ельцов')
+    reviewer.add_course(course)
+
+    reviewer.rate_hw(student1, course, 10)
+    reviewer.rate_hw(student1, course, 5)
+    reviewer.rate_hw(student1, course, 10)
+
+    reviewer.rate_hw(student2, course, 7)
+
+    print(student1)
+    print(student1 == student2)
+    print(students_average_grade([student1,student2]))
+
+
+def lecturers_test():
+    course = 'Python'
+
+    lecturer_1 = Lecturer('Jotaro', 'Kujo')
+    lecturer_1.add_course(course)
+    lecturer_2 = Lecturer('Joseph', 'Joestar')
+    lecturer_2.add_course(course)
+
+    student_1 = Student('Giorno', 'Giovanna', 'Jojo')
+    student_1.courses_in_progress.append(course)
+    student_1.rate_Lecturer(lecturer_1, course, 1)
+    student_1.rate_Lecturer(lecturer_1, course, 1)
+    student_1.rate_Lecturer(lecturer_1, course, 1)
+    student_1.rate_Lecturer(lecturer_2, course, 2)
+
+    print(lecturer_1)
+    print(lecturer_1.grades)
+    print(lecturer_2.average_grade())
+    print(lecturer_1.average_grade())
+    print(lecturers_average_grade([lecturer_2, lecturer_1]))
+
+student_test()
+lecturers_test()
 
