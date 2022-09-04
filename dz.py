@@ -96,21 +96,23 @@ class Reviewer(Mentor):
         return f'Имя: {self.name}\nФамилия: {self.surname}\n'
 
 def students_average_grade(students):
-    sum_grade = 0
-    grade_count = 0
     for student in students:
-        sum_grade += sum(sum(grade) for grade in student.grades.values())
-        grade_count += sum(len(grade) for grade in student.grades.values())
-    return sum_grade / grade_count
+        if len(student.grades.keys()) == 0:
+            return 0
+        else:
+            sum_grade = sum(sum(grade) for grade in student.grades.values())
+            grade_count = sum(len(grade) for grade in student.grades.values())
+            return sum_grade / grade_count
 
 
 def lecturers_average_grade(lecturers):
-    sum_grade = 0
-    grade_count = 0
     for lecturer in lecturers:
-        sum_grade += sum(sum(grade) for grade in lecturer.grades.values())
-        grade_count += sum(len(grade) for grade in lecturer.grades.values())
-    return sum_grade / grade_count
+        if len(lecturer.grades.keys()) == 0:
+            return 0
+        else:
+            sum_grade = sum(sum(grade) for grade in lecturer.grades.values())
+            grade_count = sum(len(grade) for grade in lecturer.grades.values())
+            return sum_grade / grade_count
 
 def student_test():
     course = 'Python'
